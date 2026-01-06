@@ -1,4 +1,7 @@
 /* (C)2024 */
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -18,10 +21,32 @@ public class Challenges {
 
     Invoking "readableTime(3690)" should return "01:01:30" (HH:MM:SS)
     ***** */
+    public Integer[] divisionWithRemaind(Integer dividend, Integer divisor ){
+        Integer[] parts = new Integer[2];
 
+        parts[0] = divisor == 0 ? dividend : dividend / divisor;
+        parts[1] = divisor == 0 ? divisor : dividend % divisor;
+
+        return parts;
+    }
     public String readableTime(Integer seconds) {
-        // YOUR CODE HERE...
-        return "";
+        Integer seconds_f, minutes_f, hours_f;
+
+        Integer[] aux = new Integer[2];
+
+        aux = divisionWithRemaind(seconds, 60);
+        seconds_f = aux[1];
+        minutes_f = aux[0];
+        aux = divisionWithRemaind(minutes_f, 60);
+        minutes_f = aux[1];
+        hours_f = aux[0];
+
+        String read_s = seconds_f < 10 ? "0" + seconds_f : "" + seconds_f;
+        String read_m = minutes_f < 10 ? "0" + minutes_f : "" + minutes_f;
+        String read_h = hours_f < 10 ? "0" + hours_f : "" + hours_f;
+
+        return read_h + ":" + read_m + ":" + read_s;
+
     }
     ;
 
@@ -44,8 +69,20 @@ public class Challenges {
 
     public String[] circularArray(int index) {
         String[] COUNTRY_NAMES = {"Germany", "Norway", "Island", "Japan", "Israel"};
-        // YOUR CODE HERE...
-        return COUNTRY_NAMES;
+
+        if (index > COUNTRY_NAMES.length) {
+            index = index % COUNTRY_NAMES.length;
+        }
+
+        String[] AUX_COUNTRY_NAME = new String[COUNTRY_NAMES.length];
+        for (int i = index; i < COUNTRY_NAMES.length ; i++) {
+            AUX_COUNTRY_NAME[i - index] = COUNTRY_NAMES[i];
+        }
+        for (int i = 0; i <  index ; i++) {
+            AUX_COUNTRY_NAME[COUNTRY_NAMES.length - (index - i)] = COUNTRY_NAMES[i];
+        }
+
+        return AUX_COUNTRY_NAME;
     }
     ;
 
@@ -69,9 +106,17 @@ public class Challenges {
     The last 3 digits for the sum of powers from 1 to 10 is "317"
     ***** */
 
+
     public String ownPower(int number, int lastDigits) {
-        // YOUR CODE HERE...
-        return "";
+        BigInteger result = new BigInteger("0");
+        for (int i = 1; i <= number ; i++){
+            BigInteger aux = BigInteger.valueOf(i);
+            aux = aux.pow(i);
+            result = result.add(aux);
+        }
+        String f_result = result.toString();
+        int length = f_result.length();
+        return f_result.substring(length - lastDigits);
     }
     ;
 
