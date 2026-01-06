@@ -136,11 +136,25 @@ public class Challenges {
     Invoking "digitSum(10)" should return "27".
     Since 10! === 3628800 and you sum 3 + 6 + 2 + 8 + 8 + 0 + 0
     ***** */
-
-    public Integer digitSum(int n) {
-        // YOUR CODE HERE...
-        return 1;
+    public BigInteger factorial(int n) {
+        BigInteger result = BigInteger.valueOf(n);
+        if (n == 0 || n == 1){
+            return result;
+        }
+        return result.multiply(factorial(n-1));
     }
+    public Integer digitSum(int n) {
+        BigInteger factorial = factorial(n);
+        int sum = 0;
+        while (factorial.compareTo(BigInteger.ZERO) > 0) {
+            BigInteger digit = factorial.mod(BigInteger.TEN);
+            sum += digit.intValue();
+            factorial = factorial.divide(BigInteger.TEN);
+        }
+
+        return sum;
+    }
+
 
     /**
      * Decryption.
