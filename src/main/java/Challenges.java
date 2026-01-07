@@ -166,8 +166,14 @@ public class Challenges {
      * @param ascivalues  hand, player2 hand
      */
     public String decrypt(List<Integer> ascivalues) {
-        // YOUR CODE HERE...
-        return "";
+        int sum = 0;
+        StringBuilder result = new StringBuilder();
+        for(Integer asci: ascivalues){
+            sum += asci;
+            char x = (char) sum;
+            result.append(x);
+        }
+        return result.toString();
     }
 
     /**
@@ -180,7 +186,17 @@ public class Challenges {
      * @param text  hand, player2 hand
      */
     public List<Integer> encrypt(String text) {
-        // YOUR CODE HERE...
-        return Collections.emptyList();
+        List<Integer> encrypted_list = new ArrayList<>();
+
+        int previous = text.charAt(0);
+        encrypted_list.add(previous);
+
+        for (int i = 1; i < text.length(); i++) {
+            int current = text.charAt(i);
+            encrypted_list.add(current - previous);
+            previous = current;
+        }
+
+        return encrypted_list;
     }
 }
