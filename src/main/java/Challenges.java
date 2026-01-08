@@ -21,32 +21,12 @@ public class Challenges {
 
     Invoking "readableTime(3690)" should return "01:01:30" (HH:MM:SS)
     ***** */
-    public Integer[] divisionWithRemaind(Integer dividend, Integer divisor ){
-        Integer[] parts = new Integer[2];
-
-        parts[0] = divisor == 0 ? dividend : dividend / divisor;
-        parts[1] = divisor == 0 ? divisor : dividend % divisor;
-
-        return parts;
-    }
     public String readableTime(Integer seconds) {
-        Integer seconds_f, minutes_f, hours_f;
+        Integer hours = seconds / 3600;
+        Integer minutes = (seconds % 3600) / 60;
+        Integer secondsF = seconds % 60;
 
-        Integer[] aux = new Integer[2];
-
-        aux = divisionWithRemaind(seconds, 60);
-        seconds_f = aux[1];
-        minutes_f = aux[0];
-        aux = divisionWithRemaind(minutes_f, 60);
-        minutes_f = aux[1];
-        hours_f = aux[0];
-
-        String read_s = seconds_f < 10 ? "0" + seconds_f : "" + seconds_f;
-        String read_m = minutes_f < 10 ? "0" + minutes_f : "" + minutes_f;
-        String read_h = hours_f < 10 ? "0" + hours_f : "" + hours_f;
-
-        return read_h + ":" + read_m + ":" + read_s;
-
+        return String.format("%02d:%02d:%02d", hours, minutes,secondsF);
     }
     ;
 
@@ -74,14 +54,12 @@ public class Challenges {
             index = index % COUNTRY_NAMES.length;
         }
 
-        String[] AUX_COUNTRY_NAME = new String[COUNTRY_NAMES.length];
-        for (int i = index; i < COUNTRY_NAMES.length ; i++) {
-            AUX_COUNTRY_NAME[i - index] = COUNTRY_NAMES[i];
+        int sizeArray = COUNTRY_NAMES.length;
+        String[] AUX_COUNTRY_NAME = new String[sizeArray];
+        for(int i = 0; i < sizeArray; i++) {
+            int auxIndex = (i + index < sizeArray) ? (index + i): Math.abs(sizeArray - (index + i));
+            AUX_COUNTRY_NAME[i] = COUNTRY_NAMES[auxIndex];
         }
-        for (int i = 0; i <  index ; i++) {
-            AUX_COUNTRY_NAME[COUNTRY_NAMES.length - (index - i)] = COUNTRY_NAMES[i];
-        }
-
         return AUX_COUNTRY_NAME;
     }
     ;
