@@ -83,18 +83,15 @@ public class Challenges {
     because 1^1 + 2^2 + 3^3 + 4^4 + 5^5 + 6^6 + 7^7 + 8^8 + 9^9 + 10^10 = 10405071317
     The last 3 digits for the sum of powers from 1 to 10 is "317"
     ***** */
-
-
     public String ownPower(int number, int lastDigits) {
-        BigInteger result = new BigInteger("0");
+        BigInteger limit = BigInteger.TEN.pow(lastDigits);
+        BigInteger result = BigInteger.ZERO;
+
         for (int i = 1; i <= number ; i++){
-            BigInteger aux = BigInteger.valueOf(i);
-            aux = aux.pow(i);
-            result = result.add(aux);
+            BigInteger aux = BigInteger.valueOf(i).modPow(BigInteger.valueOf(i), limit);
+            result = result.add(aux).mod(limit);
         }
-        String f_result = result.toString();
-        int length = f_result.length();
-        return f_result.substring(length - lastDigits);
+        return result.toString();
     }
     ;
 
@@ -115,18 +112,21 @@ public class Challenges {
     Since 10! === 3628800 and you sum 3 + 6 + 2 + 8 + 8 + 0 + 0
     ***** */
     public BigInteger factorial(int n) {
-        BigInteger result = BigInteger.valueOf(n);
-        if (n == 0 || n == 1){
-            return result;
+        if(n == 0){
+            return BigInteger.ONE;
         }
-        return result.multiply(factorial(n-1));
+        BigInteger result = BigInteger.ONE;
+        for(int i = 2; i <= n; i++){
+            result = result.multiply(BigInteger.valueOf(i));
+        }
+        return result;
     }
+
     public Integer digitSum(int n) {
         BigInteger factorial = factorial(n);
         int sum = 0;
-        while (factorial.compareTo(BigInteger.ZERO) > 0) {
-            BigInteger digit = factorial.mod(BigInteger.TEN);
-            sum += digit.intValue();
+        while (factorial.signum() > 0) {
+            sum += factorial.mod(BigInteger.TEN).intValue();
             factorial = factorial.divide(BigInteger.TEN);
         }
 

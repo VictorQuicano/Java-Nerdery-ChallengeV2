@@ -26,26 +26,19 @@ public class ChallengeStream {
      * @param player1 hand, player2 hand
      */
 
-    public CardWinner makePlayer(String name, List<Integer> hand) {
-        hand = hand.stream()
-                .sorted(Comparator.reverseOrder())
-                .limit(2)
-                .toList();
-        Integer mayorNum = hand.getFirst() * 10 + hand.getLast();
-        return new CardWinner(name, mayorNum);
+    public int calculateBestTwoDigit(List<Integer> hand) {
+        return hand.stream().sorted(Comparator.reverseOrder()).limit(2).reduce(0, (a, b) -> a * 10 + b);
     }
 
-    public CardWinner calculateWinningHand(List<Integer> player1, List<Integer> player2) {
-        CardWinner winner1 = makePlayer("P1", player1);
-        CardWinner winner2 = makePlayer("P2", player2);
 
-        Integer mayor1 = winner1.getWinTotal();
-        Integer mayor2 = winner2.getWinTotal();
+    public CardWinner calculateWinningHand(List<Integer> player1, List<Integer> player2) {
+        Integer mayor1 = calculateBestTwoDigit(player1);
+        Integer mayor2 = calculateBestTwoDigit(player2);
 
         if (Objects.equals(mayor2, mayor1)) {
             return new CardWinner("TIE", mayor2);
         }
-        return mayor1 > mayor2 ? winner1 : winner2;
+        return mayor1 > mayor2 ? new CardWinner("P1", mayor1) : new CardWinner("P2", mayor2);
     }
 
     /**
@@ -72,15 +65,11 @@ public class ChallengeStream {
             case "International" -> {
 
                 double basicCost = Math.min(3, duration) * 7.56;
-                yield duration <= 3
-                        ? basicCost
-                        : basicCost + (duration - 3) * 3.03;
+                yield duration <= 3 ? basicCost : basicCost + (duration - 3) * 3.03;
             }
             case "National" -> {
                 double basicCost = Math.min(3, duration) * 1.20;
-                yield duration <= 3
-                        ? basicCost
-                        : basicCost + (duration - 3) * 0.48;
+                yield duration <= 3 ? basicCost : basicCost + (duration - 3) * 0.48;
             }
             case "Local" -> {
                 yield duration * 0.2;
@@ -89,27 +78,18 @@ public class ChallengeStream {
         };
     }
 
-    public CallSummary getSummary(CallCostObject call){
+    public CallSummary getSummary(CallCostObject call) {
         return new CallSummary(call, getTotal(call));
     }
 
-    public boolean isValidCall(CallCostObject call){
-        List<String> validTypes = List.of(
-                "International",
-                "National",
-                "Local"
-        );
+    public boolean isValidCall(CallCostObject call) {
+        List<String> validTypes = List.of("International", "National", "Local");
         return validTypes.contains(call.getType());
     }
 
     public TotalSummary calculateCost(List<CallCostObject> costObjectList) {
-        List<CallSummary> finalSummary = costObjectList.stream()
-                .filter(call -> isValidCall(call))
-                .map(call -> getSummary(call))
-                .toList();
-        double totalCost = finalSummary.stream()
-                .mapToDouble(call -> call.getTotalCost())
-                .sum();
+        List<CallSummary> finalSummary = costObjectList.stream().filter(call -> isValidCall(call)).map(call -> getSummary(call)).toList();
+        double totalCost = finalSummary.stream().mapToDouble(call -> call.getTotalCost()).sum();
         return new TotalSummary(finalSummary, finalSummary.size(), totalCost);
     }
 }
