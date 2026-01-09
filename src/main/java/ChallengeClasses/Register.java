@@ -28,6 +28,8 @@ public class Register implements PrintableMetrics {
     public Register(){}
     public Register(List<Record> records){
         recordList = records;
+        this.getUniqueLocations();
+        this.getMetrics();
     }
     public Register(String originFile){
         WeatherDeserializer deserializer = new WeatherDeserializer();
