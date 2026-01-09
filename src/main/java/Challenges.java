@@ -117,18 +117,21 @@ public class Challenges {
     Since 10! === 3628800 and you sum 3 + 6 + 2 + 8 + 8 + 0 + 0
     ***** */
     public BigInteger factorial(int n) {
-        BigInteger result = BigInteger.valueOf(n);
-        if (n == 0 || n == 1){
-            return result;
+        if(n == 0){
+            return BigInteger.ONE;
         }
-        return result.multiply(factorial(n-1));
+        BigInteger result = BigInteger.ONE;
+        for(int i = 2; i <= n; i++){
+            result = result.multiply(BigInteger.valueOf(i));
+        }
+        return result;
     }
+
     public Integer digitSum(int n) {
         BigInteger factorial = factorial(n);
         int sum = 0;
-        while (factorial.compareTo(BigInteger.ZERO) > 0) {
-            BigInteger digit = factorial.mod(BigInteger.TEN);
-            sum += digit.intValue();
+        while (factorial.signum() > 0) {
+            sum += factorial.mod(BigInteger.TEN).intValue();
             factorial = factorial.divide(BigInteger.TEN);
         }
 
