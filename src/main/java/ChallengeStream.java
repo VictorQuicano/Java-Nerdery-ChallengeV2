@@ -93,13 +93,14 @@ public class ChallengeStream {
         return new CallSummary(call, getTotal(call));
     }
 
+    private final static List<String> VALID_TYPES_OF_CALLS = List.of(
+            "International",
+            "National",
+            "Local"
+    );
+
     public boolean isValidCall(CallCostObject call){
-        List<String> validTypes = List.of(
-                "International",
-                "National",
-                "Local"
-        );
-        return validTypes.contains(call.getType());
+        return VALID_TYPES_OF_CALLS.contains(call.getType());
     }
 
     public TotalSummary calculateCost(List<CallCostObject> costObjectList) {

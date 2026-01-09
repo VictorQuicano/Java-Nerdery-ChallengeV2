@@ -86,16 +86,18 @@ public class Challenges {
 
 
     public String ownPower(int number, int lastDigits) {
-        BigInteger result = new BigInteger("0");
+        BigInteger limit = BigInteger.TEN.pow(lastDigits);
+        BigInteger result = BigInteger.ZERO;
+
         for (int i = 1; i <= number ; i++){
-            BigInteger aux = BigInteger.valueOf(i);
-            aux = aux.pow(i);
-            result = result.add(aux);
+            BigInteger aux = BigInteger.valueOf(i).modPow(BigInteger.valueOf(i), limit);
+            result = result.add(aux).mod(limit);
         }
-        String f_result = result.toString();
-        int length = f_result.length();
-        return f_result.substring(length - lastDigits);
+        String resultStr = result.toString();
+        return "0".repeat(lastDigits - resultStr.length()) + resultStr;
+
     }
+    ;
     ;
 
     /* *****
