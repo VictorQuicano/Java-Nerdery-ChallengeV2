@@ -83,6 +83,8 @@ public class Challenges {
     because 1^1 + 2^2 + 3^3 + 4^4 + 5^5 + 6^6 + 7^7 + 8^8 + 9^9 + 10^10 = 10405071317
     The last 3 digits for the sum of powers from 1 to 10 is "317"
     ***** */
+
+
     public String ownPower(int number, int lastDigits) {
         BigInteger limit = BigInteger.TEN.pow(lastDigits);
         BigInteger result = BigInteger.ZERO;
@@ -91,7 +93,9 @@ public class Challenges {
             BigInteger aux = BigInteger.valueOf(i).modPow(BigInteger.valueOf(i), limit);
             result = result.add(aux).mod(limit);
         }
-        return result.toString();
+        String resultStr = result.toString();
+        return "0".repeat(lastDigits - resultStr.length()) + resultStr;
+
     }
     ;
 

@@ -70,8 +70,9 @@ public class Register implements PrintableMetrics {
 
     public String printUniqueLocations(){
         StringBuilder initString = new StringBuilder("Unique Locations:");
+        int index = 1;
         uniqueLocations.forEach((loc) -> {
-            String formatedLocation = "\n  - " + loc;
+            String formatedLocation = "\n  " + index+ ") " + loc;
             initString.append(formatedLocation);
         });
         return initString.toString();
@@ -144,13 +145,12 @@ public class Register implements PrintableMetrics {
         sb.append(metricResume);
     }
 
-    public Register filterByDate(int year, int month, int day, int hour, int minute) {
+    public Register filterByDate(int year, int month, int day, int hour) {
         List<Record> records = recordList.stream()
                 .filter(r -> year <= 0 || r.getMetadataInfo().getDateTime().getYear() == year)
                 .filter(r -> month <= 0 || r.getMetadataInfo().getDateTime().getMonthValue() == month)
                 .filter(r -> day <= 0 || r.getMetadataInfo().getDateTime().getDayOfMonth() == day)
-                .filter(r -> hour <= 0 || r.getMetadataInfo().getDateTime().getHour() == hour)
-                .filter(r -> minute <= 0 || r.getMetadataInfo().getDateTime().getMinute() == minute)
+                .filter(r -> hour < 0 || r.getMetadataInfo().getDateTime().getHour() == hour)
                 .sorted(Comparator.comparing(r -> r.getMetadataInfo().getDateTime()))
                 .toList();
 
@@ -171,7 +171,7 @@ public class Register implements PrintableMetrics {
 
 
     public String printResumeRegister() {
-        StringBuilder resume = new StringBuilder("=".repeat(30).concat("\n"));
+        StringBuilder resume = new StringBuilder();
         resume.append(" # Unique Stations: ".concat(String.valueOf(uniqueLocations.size())).concat("\n"));
         resume.append(String.format(" # Registers: %,d%n", recordList.size()));
 
@@ -179,6 +179,15 @@ public class Register implements PrintableMetrics {
         String maxDate = maxDate().format(DateTimeFormatter.ofPattern("dd/MMM/yyyy"));
         resume.append(String.format(" From %s to %s", minDate, maxDate ).concat("\n"));
         return resume.toString();
+    }
+
+    public void printCompleteRegister() {
+        StringBuilder completeRegister = new StringBuilder();
+        for(Record record: recordList) {
+            completeRegister.append(record.toString());
+            completeRegister.append("\n");
+        }
+        System.out.println(completeRegister);
     }
 
     public Register filterByLocationName(String nameLocation){
@@ -189,6 +198,9 @@ public class Register implements PrintableMetrics {
         return new Register(records);
     }
     // Getters and Setters
+    public List<String> getUniqueLocationsList() {
+        return uniqueLocations;
+    }
     public List<Record> getRecordList() {
         return recordList;
     }

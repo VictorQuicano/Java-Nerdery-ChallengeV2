@@ -30,7 +30,6 @@ public class ChallengeStream {
         return hand.stream().sorted(Comparator.reverseOrder()).limit(2).reduce(0, (a, b) -> a * 10 + b);
     }
 
-
     public CardWinner calculateWinningHand(List<Integer> player1, List<Integer> player2) {
         Integer mayor1 = calculateBestTwoDigit(player1);
         Integer mayor2 = calculateBestTwoDigit(player2);
@@ -63,7 +62,6 @@ public class ChallengeStream {
         int duration = call.getDuration();
         return switch (call.getType()) {
             case "International" -> {
-
                 double basicCost = Math.min(3, duration) * 7.56;
                 yield duration <= 3 ? basicCost : basicCost + (duration - 3) * 3.03;
             }
@@ -82,14 +80,24 @@ public class ChallengeStream {
         return new CallSummary(call, getTotal(call));
     }
 
-    public boolean isValidCall(CallCostObject call) {
-        List<String> validTypes = List.of("International", "National", "Local");
-        return validTypes.contains(call.getType());
+    private final static List<String> VALID_TYPES_OF_CALLS = List.of(
+            "International",
+            "National",
+            "Local"
+    );
+
+    public boolean isValidCall(CallCostObject call){
+        return VALID_TYPES_OF_CALLS.contains(call.getType());
     }
 
     public TotalSummary calculateCost(List<CallCostObject> costObjectList) {
-        List<CallSummary> finalSummary = costObjectList.stream().filter(call -> isValidCall(call)).map(call -> getSummary(call)).toList();
-        double totalCost = finalSummary.stream().mapToDouble(call -> call.getTotalCost()).sum();
+        List<CallSummary> finalSummary = costObjectList.stream()
+                .filter(this::isValidCall)
+                .map(this::getSummary)
+                .toList();
+        double totalCost = finalSummary.stream()
+                .mapToDouble(CallSummary::getTotalCost)
+                .sum();
         return new TotalSummary(finalSummary, finalSummary.size(), totalCost);
     }
 }
