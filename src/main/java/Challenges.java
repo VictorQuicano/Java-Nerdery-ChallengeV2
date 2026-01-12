@@ -1,7 +1,4 @@
 /* (C)2024 */
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -21,12 +18,10 @@ public class Challenges {
 
     Invoking "readableTime(3690)" should return "01:01:30" (HH:MM:SS)
     ***** */
-    public String readableTime(Integer seconds) {
-        Integer hours = seconds / 3600;
-        Integer minutes = (seconds % 3600) / 60;
-        Integer secondsF = seconds % 60;
 
-        return String.format("%02d:%02d:%02d", hours, minutes,secondsF);
+    public String readableTime(Integer seconds) {
+        // YOUR CODE HERE...
+        return "";
     }
     ;
 
@@ -49,18 +44,8 @@ public class Challenges {
 
     public String[] circularArray(int index) {
         String[] COUNTRY_NAMES = {"Germany", "Norway", "Island", "Japan", "Israel"};
-
-        if (index > COUNTRY_NAMES.length) {
-            index = index % COUNTRY_NAMES.length;
-        }
-
-        int sizeArray = COUNTRY_NAMES.length;
-        String[] AUX_COUNTRY_NAME = new String[sizeArray];
-        for(int i = 0; i < sizeArray; i++) {
-            int auxIndex = (i + index < sizeArray) ? (index + i): Math.abs(sizeArray - (index + i));
-            AUX_COUNTRY_NAME[i] = COUNTRY_NAMES[auxIndex];
-        }
-        return AUX_COUNTRY_NAME;
+        // YOUR CODE HERE...
+        return COUNTRY_NAMES;
     }
     ;
 
@@ -84,18 +69,9 @@ public class Challenges {
     The last 3 digits for the sum of powers from 1 to 10 is "317"
     ***** */
 
-
     public String ownPower(int number, int lastDigits) {
-        BigInteger limit = BigInteger.TEN.pow(lastDigits);
-        BigInteger result = BigInteger.ZERO;
-
-        for (int i = 1; i <= number ; i++){
-            BigInteger aux = BigInteger.valueOf(i).modPow(BigInteger.valueOf(i), limit);
-            result = result.add(aux).mod(limit);
-        }
-        String resultStr = result.toString();
-        return "0".repeat(lastDigits - resultStr.length()) + resultStr;
-
+        // YOUR CODE HERE...
+        return "";
     }
     ;
 
@@ -115,28 +91,11 @@ public class Challenges {
     Invoking "digitSum(10)" should return "27".
     Since 10! === 3628800 and you sum 3 + 6 + 2 + 8 + 8 + 0 + 0
     ***** */
-    public BigInteger factorial(int n) {
-        if(n == 0){
-            return BigInteger.ONE;
-        }
-        BigInteger result = BigInteger.ONE;
-        for(int i = 2; i <= n; i++){
-            result = result.multiply(BigInteger.valueOf(i));
-        }
-        return result;
-    }
 
     public Integer digitSum(int n) {
-        BigInteger factorial = factorial(n);
-        int sum = 0;
-        while (factorial.signum() > 0) {
-            sum += factorial.mod(BigInteger.TEN).intValue();
-            factorial = factorial.divide(BigInteger.TEN);
-        }
-
-        return sum;
+        // YOUR CODE HERE...
+        return 1;
     }
-
 
     /**
      * Decryption.
@@ -148,14 +107,8 @@ public class Challenges {
      * @param ascivalues  hand, player2 hand
      */
     public String decrypt(List<Integer> ascivalues) {
-        int sum = 0;
-        StringBuilder result = new StringBuilder();
-        for(Integer asci: ascivalues){
-            sum += asci;
-            char x = (char) sum;
-            result.append(x);
-        }
-        return result.toString();
+        // YOUR CODE HERE...
+        return "";
     }
 
     /**
@@ -168,17 +121,7 @@ public class Challenges {
      * @param text  hand, player2 hand
      */
     public List<Integer> encrypt(String text) {
-        List<Integer> encrypted_list = new ArrayList<>();
-
-        int previous = text.charAt(0);
-        encrypted_list.add(previous);
-
-        for (int i = 1; i < text.length(); i++) {
-            int current = text.charAt(i);
-            encrypted_list.add(current - previous);
-            previous = current;
-        }
-
-        return encrypted_list;
+        // YOUR CODE HERE...
+        return Collections.emptyList();
     }
 }
