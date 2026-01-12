@@ -50,14 +50,12 @@ public class Challenges {
     public String[] circularArray(int index) {
         String[] COUNTRY_NAMES = {"Germany", "Norway", "Island", "Japan", "Israel"};
 
-        if (index > COUNTRY_NAMES.length) {
-            index = index % COUNTRY_NAMES.length;
-        }
+        index = index % COUNTRY_NAMES.length;
 
         int sizeArray = COUNTRY_NAMES.length;
         String[] AUX_COUNTRY_NAME = new String[sizeArray];
         for(int i = 0; i < sizeArray; i++) {
-            int auxIndex = (i + index < sizeArray) ? (index + i): Math.abs(sizeArray - (index + i));
+            int auxIndex = (i + index) % sizeArray;
             AUX_COUNTRY_NAME[i] = COUNTRY_NAMES[auxIndex];
         }
         return AUX_COUNTRY_NAME;
@@ -170,7 +168,9 @@ public class Challenges {
      */
     public List<Integer> encrypt(String text) {
         List<Integer> encrypted_list = new ArrayList<>();
-
+        if(text.isEmpty()){
+            return encrypted_list;
+        }
         int previous = text.charAt(0);
         encrypted_list.add(previous);
 
