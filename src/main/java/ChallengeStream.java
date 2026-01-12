@@ -105,11 +105,11 @@ public class ChallengeStream {
 
     public TotalSummary calculateCost(List<CallCostObject> costObjectList) {
         List<CallSummary> finalSummary = costObjectList.stream()
-                .filter(call -> isValidCall(call))
-                .map(call -> getSummary(call))
+                .filter(this::isValidCall)
+                .map(this::getSummary)
                 .toList();
         double totalCost = finalSummary.stream()
-                .mapToDouble(call -> call.getTotalCost())
+                .mapToDouble(CallSummary::getTotalCost)
                 .sum();
         return new TotalSummary(finalSummary, finalSummary.size(), totalCost);
     }
