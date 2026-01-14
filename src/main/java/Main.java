@@ -8,6 +8,12 @@ public class Main {
     private static Scanner scanner;
     private static boolean running = true;
 
+    private static double totalTime = 0.0d;
+    private static double totalMinMetricTime = 0.0d;
+    private static double totalMaxMetricTime = 0.0d;
+    private static double totalAvgMetricTime = 0.0d;
+    private static int countQueries = 0;
+
     // Filter state tracking
     private static boolean filteredByDate = false;
     private static boolean filteredByLocation = false;
@@ -15,6 +21,18 @@ public class Main {
     public static void main(String[] args) {
         String filePath = "WeatherStations.json";
         baseRegister = new Register(filePath);
+        System.out.println("-".repeat(40));
+        System.out.printf(
+                " Time to load Metrics File: \t%.2f ms%n" +
+                        " Time to get MIN metric:    \t%.2f ms%n" +
+                        " Time to get MAX metric:    \t%.2f ms%n" +
+                        " Time to get AVG metric:    \t%.2f ms%n",
+                baseRegister.getTimeConstruction(),
+                baseRegister.getTimeGetMinMetric(),
+                baseRegister.getTimeGetMaxMetric(),
+                baseRegister.getTimeGetAVGMetric()
+        );
+        System.out.println("-".repeat(40));
         currentRegister = baseRegister;
         scanner = new Scanner(System.in);
 
@@ -249,6 +267,48 @@ public class Main {
             System.out.println("\nInvalid input. Please enter valid numbers.\n");
             scanner.nextLine();
         }
+        printTimes();
+    }
+
+    private static void printTimes() {
+        double tc = currentRegister.getTimeConstruction();
+        double tmax = currentRegister.getTimeGetMaxMetric();
+        double tmin = currentRegister.getTimeGetMinMetric();
+        double tavg = currentRegister.getTimeGetAVGMetric();
+
+        countQueries++;
+        totalTime += tc;
+        totalMaxMetricTime += tmax;
+        totalMinMetricTime += tmin;
+        totalAvgMetricTime += tavg;
+
+        double avgTc = totalTime / countQueries;
+        double avgTmax = totalMaxMetricTime / countQueries;
+        double avgTmin = totalMinMetricTime / countQueries;
+        double avgTavg = totalAvgMetricTime / countQueries;
+
+
+        double avgTime = (double) totalTime / countQueries;
+
+        System.out.println("\n" + "-".repeat(60));
+        System.out.println("TIEMPOS DE CONSULTA #" + countQueries);
+        System.out.println("-".repeat(60));
+
+        System.out.printf("Construction:    %8.3f ms (Avg: %8.3f ms)%n",
+                tc, totalTime / countQueries);
+        System.out.printf("Get Max Metric:  %8.3f ms (Avg: %8.3f ms)%n",
+                tmax, totalMaxMetricTime / countQueries);
+        System.out.printf("Get Min Metric:  %8.3f ms (Avg: %8.3f ms)%n",
+                tmin, totalMinMetricTime / countQueries);
+        System.out.printf("Get AVG Metric:  %8.3f ms (Avg: %8.3f ms)%n",
+                tavg, totalAvgMetricTime / countQueries);
+
+        double totalActual = tc + tmax + tmin + tavg;
+        double totalAvg = (totalTime + totalMaxMetricTime + totalMinMetricTime + totalAvgMetricTime) / countQueries;
+
+        System.out.println("-".repeat(60));
+        System.out.printf("TOTAL:           %8.3f ms (Avg: %8.3f ms)%n", totalActual, totalAvg);
+        System.out.println("-".repeat(60) + "\n");
     }
 
     private static void filterByLocation() {
@@ -280,6 +340,7 @@ public class Main {
             System.out.println("\nAn error occurred while filtering by location.\n");
             scanner.nextLine();
         }
+        printTimes();
     }
 
     private static void displayMetricsMenu() {

@@ -1,20 +1,23 @@
 package ChallengeClasses;
 
-import ChallengeClasses.Metrics.MetricAVG;
 import ChallengeClasses.Metrics.MetricAccumulator;
 import ChallengeClasses.Metrics.Metrics;
 import ChallengeClasses.Metrics.PrintableMetrics;
 
 import java.io.IOException;
-import java.time.Month;
+import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Stream;
 
 public class Register implements PrintableMetrics {
     private List<Record> recordList;
+
+    private double timeConstruction;
+    private double timeGetMaxMetric;
+    private double timeGetMinMetric;
+    private double timeGetAVGMetric;
 
     // Metrics
     private Metrics minMetrics;
@@ -26,18 +29,22 @@ public class Register implements PrintableMetrics {
 
     // Builders
     public Register(){}
-    public Register(List<Record> records){
+    public Register(List<Record> records, double time){
         recordList = records;
+        timeConstruction = time;
         this.getUniqueLocations();
         this.getMetrics();
     }
     public Register(String originFile){
+        double startTime = System.nanoTime(), endTime;
         WeatherDeserializer deserializer = new WeatherDeserializer();
         try{
             this.recordList = deserializer.parseJsonFile(originFile);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        endTime = System.nanoTime();
+        this.timeConstruction = (endTime - startTime) / 1_000_000;
         this.getMetrics();
         this.getUniqueLocations();
     }
@@ -51,20 +58,28 @@ public class Register implements PrintableMetrics {
                 .toList();
     }
     private void getMetrics(){
-
+        double start = System.nanoTime(), end;
         minMetrics = recordList.stream()
                 .map(Record::getMetrics)
                 .reduce(Metrics::minWith)
                 .orElse(null);
+        end = System.nanoTime();
+        timeGetMinMetric = (end - start) / 1_000_000;
+        start = System.nanoTime();
         maxMetrics = recordList.stream()
                 .map(Record::getMetrics)
                 .reduce(Metrics::maxWith)
                 .orElse(null);
+        end = System.nanoTime();
+        timeGetMaxMetric = (end - start) / 1_000_000;
+        start = System.nanoTime();
         avgMetrics = recordList.stream()
                 .map(Record::getMetrics)
                 .collect(MetricAccumulator::new, MetricAccumulator::addMetric,
                         (a, b) -> { throw new UnsupportedOperationException(); })
                 .getAvg();
+        end = System.nanoTime();
+        timeGetAVGMetric = (end - start) / 1_000_000;
     }
 
 
@@ -146,6 +161,7 @@ public class Register implements PrintableMetrics {
     }
 
     public Register filterByDate(int year, int month, int day, int hour) {
+        double startTime = System.nanoTime(), endTime, duration;
         List<Record> records = recordList.stream()
                 .filter(r -> year <= 0 || r.getMetadataInfo().getDateTime().getYear() == year)
                 .filter(r -> month <= 0 || r.getMetadataInfo().getDateTime().getMonthValue() == month)
@@ -153,8 +169,9 @@ public class Register implements PrintableMetrics {
                 .filter(r -> hour < 0 || r.getMetadataInfo().getDateTime().getHour() == hour)
                 .sorted(Comparator.comparing(r -> r.getMetadataInfo().getDateTime()))
                 .toList();
-
-        return new Register(records);
+        endTime = System.nanoTime();
+        duration = (endTime - startTime) / 1_000_000;
+        return new Register(records, duration);
     }
     public OffsetDateTime minDate(){
         return recordList.stream()
@@ -191,12 +208,16 @@ public class Register implements PrintableMetrics {
     }
 
     public Register filterByLocationName(String nameLocation){
+        double startTime = System.nanoTime(), endTime, duration;
         List<Record> records = recordList.stream()
                 .filter(r ->
                     r.getMetadataInfo().getName().equals(nameLocation)
                 ).toList();
-        return new Register(records);
+        endTime = System.nanoTime();
+        duration = (endTime - startTime) / 1_000_000;
+        return new Register(records, duration);
     }
+
     // Getters and Setters
     public List<String> getUniqueLocationsList() {
         return uniqueLocations;
@@ -232,6 +253,22 @@ public class Register implements PrintableMetrics {
 
     public void setAvgMetrics(Metrics avgMetrics) {
         this.avgMetrics = avgMetrics;
+    }
+
+    public double getTimeConstruction() {
+        return timeConstruction;
+    }
+
+    public double getTimeGetMaxMetric() {
+        return timeGetMaxMetric;
+    }
+
+    public double getTimeGetMinMetric() {
+        return timeGetMinMetric;
+    }
+
+    public double getTimeGetAVGMetric() {
+        return timeGetAVGMetric;
     }
 
 }
