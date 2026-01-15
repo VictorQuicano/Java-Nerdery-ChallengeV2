@@ -9,9 +9,8 @@ public class Main {
     private static boolean running = true;
 
     private static double totalTime = 0.0d;
-    private static double totalMinMetricTime = 0.0d;
-    private static double totalMaxMetricTime = 0.0d;
-    private static double totalAvgMetricTime = 0.0d;
+    private static double totalGetMetricTime = 0.0d;
+    private static double totalGetPerDay = 0.0d;
     private static int countQueries = 0;
 
     // Filter state tracking
@@ -24,13 +23,11 @@ public class Main {
         System.out.println("-".repeat(40));
         System.out.printf(
                 " Time to load Metrics File: \t%.2f ms%n" +
-                        " Time to get MIN metric:    \t%.2f ms%n" +
-                        " Time to get MAX metric:    \t%.2f ms%n" +
-                        " Time to get AVG metric:    \t%.2f ms%n",
+                        " Time to get Overall Statistics:    \t%.2f ms%n" +
+                        " Time to get Daily Statistics:    \t%.2f ms%n",
                 baseRegister.getTimeConstruction(),
-                baseRegister.getTimeGetMinMetric(),
-                baseRegister.getTimeGetMaxMetric(),
-                baseRegister.getTimeGetAVGMetric()
+                baseRegister.getTimeGetMetric(),
+                baseRegister.getTimeGetPerDay()
         );
         System.out.println("-".repeat(40));
         currentRegister = baseRegister;
@@ -272,39 +269,32 @@ public class Main {
 
     private static void printTimes() {
         double tc = currentRegister.getTimeConstruction();
-        double tmax = currentRegister.getTimeGetMaxMetric();
-        double tmin = currentRegister.getTimeGetMinMetric();
-        double tavg = currentRegister.getTimeGetAVGMetric();
+        double tMetrics = currentRegister.getTimeGetMetric();
+        double tPerDay = currentRegister.getTimeGetPerDay();
 
         countQueries++;
         totalTime += tc;
-        totalMaxMetricTime += tmax;
-        totalMinMetricTime += tmin;
-        totalAvgMetricTime += tavg;
+        totalGetMetricTime += tMetrics;
+        totalGetPerDay += tPerDay;
 
         double avgTc = totalTime / countQueries;
-        double avgTmax = totalMaxMetricTime / countQueries;
-        double avgTmin = totalMinMetricTime / countQueries;
-        double avgTavg = totalAvgMetricTime / countQueries;
+        double avgTgetMetrics = totalGetMetricTime / countQueries;
+        double avgTperDay = totalGetPerDay / countQueries;
 
-
-        double avgTime = (double) totalTime / countQueries;
 
         System.out.println("\n" + "-".repeat(60));
         System.out.println("TIEMPOS DE CONSULTA #" + countQueries);
         System.out.println("-".repeat(60));
 
         System.out.printf("Construction:    %8.3f ms (Avg: %8.3f ms)%n",
-                tc, totalTime / countQueries);
-        System.out.printf("Get Max Metric:  %8.3f ms (Avg: %8.3f ms)%n",
-                tmax, totalMaxMetricTime / countQueries);
-        System.out.printf("Get Min Metric:  %8.3f ms (Avg: %8.3f ms)%n",
-                tmin, totalMinMetricTime / countQueries);
-        System.out.printf("Get AVG Metric:  %8.3f ms (Avg: %8.3f ms)%n",
-                tavg, totalAvgMetricTime / countQueries);
+                tc, avgTc);
+        System.out.printf("Get Overall Statistics:  %8.3f ms (Avg: %8.3f ms)%n",
+                tMetrics, avgTgetMetrics);
+        System.out.printf("Get Daily Statistics:  %8.3f ms (Avg: %8.3f ms)%n",
+                tPerDay, avgTperDay);
 
-        double totalActual = tc + tmax + tmin + tavg;
-        double totalAvg = (totalTime + totalMaxMetricTime + totalMinMetricTime + totalAvgMetricTime) / countQueries;
+        double totalActual = tc + tMetrics + tPerDay;
+        double totalAvg = (totalTime + totalGetMetricTime + totalGetPerDay) / countQueries;
 
         System.out.println("-".repeat(60));
         System.out.printf("TOTAL:           %8.3f ms (Avg: %8.3f ms)%n", totalActual, totalAvg);

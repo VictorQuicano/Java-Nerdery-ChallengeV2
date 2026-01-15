@@ -2,38 +2,35 @@ package ChallengeClasses;
 
 import ChallengeClasses.Metrics.MetricAccumulator;
 import ChallengeClasses.Metrics.Metrics;
+import ChallengeClasses.Metrics.MetricsManager;
 import ChallengeClasses.Metrics.PrintableMetrics;
 
 import java.io.IOException;
-import java.time.Duration;
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.Locale;
+import java.util.stream.Collectors;
 
-public class Register implements PrintableMetrics {
+public class Register extends PrintableMetrics {
     private List<Record> recordList;
-
     private double timeConstruction;
-    private double timeGetMaxMetric;
-    private double timeGetMinMetric;
-    private double timeGetAVGMetric;
-
-    // Metrics
-    private Metrics minMetrics;
-    private Metrics maxMetrics;
-    private Metrics avgMetrics;
-
+    private double timeGetPerDay;
+    private List<DaySummary> daySummary;
     // Locations
     private List<String> uniqueLocations;
 
     // Builders
     public Register(){}
     public Register(List<Record> records, double time){
+        super(records);
         recordList = records;
         timeConstruction = time;
         this.getUniqueLocations();
-        this.getMetrics();
+        this.getMetricsPerDay();
     }
     public Register(String originFile){
         double startTime = System.nanoTime(), endTime;
@@ -46,7 +43,12 @@ public class Register implements PrintableMetrics {
         endTime = System.nanoTime();
         this.timeConstruction = (endTime - startTime) / 1_000_000;
         this.getMetrics();
+        this.getMetricsPerDay();
         this.getUniqueLocations();
+    }
+
+    private void getMetrics(){
+        manager = new MetricsManager(recordList);
     }
     private void getUniqueLocations(){
 
@@ -57,41 +59,31 @@ public class Register implements PrintableMetrics {
                 .sorted()
                 .toList();
     }
-    private void getMetrics(){
-        double start = System.nanoTime(), end;
-        minMetrics = recordList.stream()
-                .map(Record::getMetrics)
-                .reduce(Metrics::minWith)
-                .orElse(null);
-        end = System.nanoTime();
-        timeGetMinMetric = (end - start) / 1_000_000;
-        start = System.nanoTime();
-        maxMetrics = recordList.stream()
-                .map(Record::getMetrics)
-                .reduce(Metrics::maxWith)
-                .orElse(null);
-        end = System.nanoTime();
-        timeGetMaxMetric = (end - start) / 1_000_000;
-        start = System.nanoTime();
-        avgMetrics = recordList.stream()
-                .map(Record::getMetrics)
-                .collect(MetricAccumulator::new, MetricAccumulator::addMetric,
-                        (a, b) -> { throw new UnsupportedOperationException(); })
-                .getAvg();
-        end = System.nanoTime();
-        timeGetAVGMetric = (end - start) / 1_000_000;
+    private void getMetricsPerDay() {
+        double start = System.nanoTime(), end, duration;
+        daySummary =  this.recordList.stream()
+                .collect(Collectors.groupingBy(
+                        r -> r.getMetadataInfo().getDateTime().toLocalDate()
+                ))
+                .entrySet()
+                .stream()
+                .sorted(Map.Entry.comparingByKey())
+                .map(entry -> new DaySummary(entry.getKey(), entry.getValue()))
+                .toList();
+        timeGetPerDay = (System.nanoTime() - start)/ 1_000_000;
     }
 
-
-    public String printUniqueLocations(){
-        StringBuilder initString = new StringBuilder("Unique Locations:");
+    public String printUniqueLocations() {
+        StringBuilder result = new StringBuilder("Unique Locations:");
         int index = 1;
-        uniqueLocations.forEach((loc) -> {
-            String formatedLocation = "\n  " + index+ ") " + loc;
-            initString.append(formatedLocation);
-        });
-        return initString.toString();
+
+        for (String loc : uniqueLocations) {
+            result.append("\n  ").append(index++).append(") ").append(loc);
+        }
+
+        return result.toString();
     }
+
     public String printResume() {
         StringBuilder sb = new StringBuilder();
 
@@ -99,67 +91,22 @@ public class Register implements PrintableMetrics {
         sb.append("METRICS SUMMARY\n");
         sb.append("-".repeat(60)).append("\n");
 
-        // Add each metric row
-        addMetricRow(sb, "Air Temperature",
-                minMetrics.getAirTemp(), maxMetrics.getAirTemp(), avgMetrics.getAirTemp(), "°C");
-
-        addMetricRow(sb, "Atmospheric Pressure",
-                minMetrics.getAtmosphericPressure(), maxMetrics.getAtmosphericPressure(),
-                avgMetrics.getAtmosphericPressure(), "hPa");
-
-        addMetricRow(sb, "Gust Speed",
-                minMetrics.getGustSpeed(), maxMetrics.getGustSpeed(),
-                avgMetrics.getGustSpeed(), "m/s");
-
-        addMetricRow(sb, "Precipitation",
-                minMetrics.getPrecipitation(), maxMetrics.getPrecipitation(),
-                avgMetrics.getPrecipitation(), "mm");
-
-        addMetricRow(sb, "Relative Humidity",
-                minMetrics.getRelativeHumidity(), maxMetrics.getRelativeHumidity(),
-                avgMetrics.getRelativeHumidity(), "%");
-
-        addMetricRow(sb, "Solar Radiation",
-                minMetrics.getSolar(), maxMetrics.getSolar(),
-                avgMetrics.getSolar(), "W/m²");
-
-        addMetricRow(sb, "Strike Distance",
-                minMetrics.getStrikeDistance(), maxMetrics.getStrikeDistance(),
-                avgMetrics.getStrikeDistance(), "km");
-
-        addMetricRow(sb, "Strikes",
-                minMetrics.getStrikes(), maxMetrics.getStrikes(),
-                avgMetrics.getStrikes(), "");
-
-        addMetricRow(sb, "Vapour Pressure",
-                minMetrics.getVapourPressure(), maxMetrics.getVapourPressure(),
-                avgMetrics.getVapourPressure(), "hPa");
-
-        addMetricRow(sb, "Wind Direction",
-                minMetrics.getWindDirection(), maxMetrics.getWindDirection(),
-                avgMetrics.getWindDirection(), "°");
-
-        addMetricRow(sb, "Wind Speed",
-                minMetrics.getWindSpeed(), maxMetrics.getWindSpeed(),
-                avgMetrics.getWindSpeed(), "m/s");
-
+        sb.append(manager.toString());
         sb.append("\n").append("=".repeat(60)).append("\n");
 
         return sb.toString();
     }
 
-    private void addMetricRow(StringBuilder sb, String metricName,
-                              double min, double max, double avg, String unit) {
-        String metricResume = String.format(
-                "\n  - %s :" + "\n   AVG: %.2f %s" + "\n   MIN: %.2f %s" + "\n   MAX: %.2f %s",
-                metricName,
-                avg, unit,
-                min, unit,
-                max, unit
-        );
-        sb.append(metricResume);
+    public Register filterByLocationName(String nameLocation){
+        double startTime = System.nanoTime(), endTime, duration;
+        List<Record> records = recordList.stream()
+                .filter(r ->
+                        r.getMetadataInfo().getName().equals(nameLocation)
+                ).toList();
+        endTime = System.nanoTime();
+        duration = (endTime - startTime) / 1_000_000;
+        return new Register(records, duration);
     }
-
     public Register filterByDate(int year, int month, int day, int hour) {
         double startTime = System.nanoTime(), endTime, duration;
         List<Record> records = recordList.stream()
@@ -186,7 +133,6 @@ public class Register implements PrintableMetrics {
                 .orElse(null);
     }
 
-
     public String printResumeRegister() {
         StringBuilder resume = new StringBuilder();
         resume.append(" # Unique Stations: ".concat(String.valueOf(uniqueLocations.size())).concat("\n"));
@@ -197,7 +143,6 @@ public class Register implements PrintableMetrics {
         resume.append(String.format(" From %s to %s", minDate, maxDate ).concat("\n"));
         return resume.toString();
     }
-
     public void printCompleteRegister() {
         StringBuilder completeRegister = new StringBuilder();
         for(Record record: recordList) {
@@ -207,16 +152,6 @@ public class Register implements PrintableMetrics {
         System.out.println(completeRegister);
     }
 
-    public Register filterByLocationName(String nameLocation){
-        double startTime = System.nanoTime(), endTime, duration;
-        List<Record> records = recordList.stream()
-                .filter(r ->
-                    r.getMetadataInfo().getName().equals(nameLocation)
-                ).toList();
-        endTime = System.nanoTime();
-        duration = (endTime - startTime) / 1_000_000;
-        return new Register(records, duration);
-    }
 
     // Getters and Setters
     public List<String> getUniqueLocationsList() {
@@ -225,50 +160,11 @@ public class Register implements PrintableMetrics {
     public List<Record> getRecordList() {
         return recordList;
     }
-
-    public void setRecordList(List<Record> recordList) {
-        this.recordList = recordList;
-    }
-
-    public Metrics getMinMetrics() {
-        return minMetrics;
-    }
-
-    public void setMinMetrics(Metrics minMetrics)
-    {
-        this.minMetrics = minMetrics;
-    }
-
-    public Metrics getMaxMetrics() {
-        return maxMetrics;
-    }
-
-    public void setMaxMetrics(Metrics maxMetrics) {
-        this.maxMetrics = maxMetrics;
-    }
-
-    public Metrics getAvgMetrics() {
-        return avgMetrics;
-    }
-
-    public void setAvgMetrics(Metrics avgMetrics) {
-        this.avgMetrics = avgMetrics;
-    }
-
     public double getTimeConstruction() {
         return timeConstruction;
     }
-
-    public double getTimeGetMaxMetric() {
-        return timeGetMaxMetric;
+    public double getTimeGetPerDay() {
+        return timeGetPerDay;
     }
-
-    public double getTimeGetMinMetric() {
-        return timeGetMinMetric;
-    }
-
-    public double getTimeGetAVGMetric() {
-        return timeGetAVGMetric;
-    }
-
+    public List<DaySummary> getDaySummary(){return daySummary;}
 }

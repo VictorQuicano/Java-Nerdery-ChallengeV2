@@ -1,6 +1,6 @@
 package ChallengeClasses.Metrics;
 
-public class Metrics implements PrintableMetrics{
+public class Metrics{
 
     private Double airTemp;
     private Double atmosphericPressure;
@@ -30,6 +30,12 @@ public class Metrics implements PrintableMetrics{
         this.windSpeed = windSpeed;
     }
 
+    protected String format(Double value, String unit) {
+        if (value == null) {
+            return "N/A";
+        }
+        return String.format("%.2f %s", value, unit).trim();
+    }
 
     @Override
     public String toString() {
@@ -57,6 +63,13 @@ public class Metrics implements PrintableMetrics{
         if (b == null) return a;
         return Math.max(a, b);
     }
+    private Double add(Double a, Double b) {
+        return (a == null ? 0.0 : a) + (b == null ? 0.0 : b);
+    }
+    private Double divide(Double a, int b) {
+        return (a == null ? 0.0 : a ) / b;
+    }
+
     public Metrics minWith(Metrics other) {
         return new Metrics(
                 min(this.airTemp, other.airTemp),
@@ -72,7 +85,6 @@ public class Metrics implements PrintableMetrics{
                 min(this.windSpeed, other.windSpeed)
         );
     }
-
     public Metrics maxWith(Metrics other) {
         return new Metrics(
                 max(this.airTemp, other.airTemp),
@@ -88,96 +100,50 @@ public class Metrics implements PrintableMetrics{
                 max(this.windSpeed, other.windSpeed)
         );
     }
-    public Metrics divideWith(double divisor){
+    public Metrics add(Metrics other) {
         return new Metrics(
-
+                add(this.airTemp, other.airTemp),
+                add(this.atmosphericPressure, other.atmosphericPressure),
+                add(this.gustSpeed, other.gustSpeed),
+                add(this.precipitation, other.precipitation),
+                add(this.relativeHumidity, other.relativeHumidity),
+                add(this.solar, other.solar),
+                add(this.strikeDistance, other.strikeDistance),
+                add(this.strikes, other.strikes),
+                add(this.vapourPressure, other.vapourPressure),
+                add(this.windDirection, other.windDirection),
+                add(this.windSpeed, other.windSpeed)
         );
     }
-    public Double getAirTemp() {
-        return airTemp;
+    public Metrics divideWith(int divisor){
+        return new Metrics(
+                divide(this.airTemp, divisor),
+                divide(this.atmosphericPressure, divisor),
+                divide(this.gustSpeed, divisor),
+                divide(this.precipitation, divisor),
+                divide(this.relativeHumidity, divisor),
+                divide(this.solar, divisor),
+                divide(this.strikeDistance, divisor),
+                divide(this.strikes, divisor),
+                divide(this.vapourPressure, divisor),
+                divide(this.windDirection, divisor),
+                divide(this.windSpeed, divisor)
+        );
     }
 
-    public void setAirTemp(Double airTemp) {
-        this.airTemp = airTemp;
-    }
-
+    public Double getAirTemp() { return airTemp; }
     public Double getAtmosphericPressure() {
         return atmosphericPressure;
     }
-
-    public void setAtmosphericPressure(Double atmosphericPressure) {
-        this.atmosphericPressure = atmosphericPressure;
-    }
-
     public Double getGustSpeed() {
         return gustSpeed;
     }
-
-    public void setGustSpeed(Double gustSpeed) {
-        this.gustSpeed = gustSpeed;
-    }
-
-    public Double getPrecipitation() {
-        return precipitation;
-    }
-
-    public void setPrecipitation(Double precipitation) {
-        this.precipitation = precipitation;
-    }
-
-    public Double getRelativeHumidity() {
-        return relativeHumidity;
-    }
-
-    public void setRelativeHumidity(Double relativeHumidity) {
-        this.relativeHumidity = relativeHumidity;
-    }
-
-    public Double getSolar() {
-        return solar;
-    }
-
-    public void setSolar(Double solar) {
-        this.solar = solar;
-    }
-
-    public Double getStrikeDistance() {
-        return strikeDistance;
-    }
-
-    public void setStrikeDistance(Double strikeDistance) {
-        this.strikeDistance = strikeDistance;
-    }
-
-    public Double getStrikes() {
-        return strikes;
-    }
-
-    public void setStrikes(Double strikes) {
-        this.strikes = strikes;
-    }
-
-    public Double getVapourPressure() {
-        return vapourPressure;
-    }
-
-    public void setVapourPressure(Double vapourPressure) {
-        this.vapourPressure = vapourPressure;
-    }
-
-    public Double getWindDirection() {
-        return windDirection;
-    }
-
-    public void setWindDirection(Double windDirection) {
-        this.windDirection = windDirection;
-    }
-
-    public Double getWindSpeed() {
-        return windSpeed;
-    }
-
-    public void setWindSpeed(Double windSpeed) {
-        this.windSpeed = windSpeed;
-    }
+    public Double getPrecipitation() { return precipitation;}
+    public Double getRelativeHumidity() { return relativeHumidity;}
+    public Double getSolar() { return solar;}
+    public Double getStrikeDistance() { return strikeDistance;}
+    public Double getStrikes() { return strikes; }
+    public Double getVapourPressure() { return vapourPressure; }
+    public Double getWindDirection() { return windDirection; }
+    public Double getWindSpeed() { return windSpeed;     }
 }
